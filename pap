@@ -18,6 +18,7 @@ seqs() {
 }
 
 sequences() {
+    xres=""
     while read -r line; do
         color="${line:=#000000}"
 
@@ -48,24 +49,37 @@ sequences() {
             fi
         }
 
-        [ "$i" = 15 ] && {
-            # 10:  Foreground color
+        [ "$i" = 2 ] && {
             # 12:  Cursor foreground color
             # 13:  Mouse foreground color
             # 19:  Highlight foreground Color
             # 256: Cursor color
-            # 259: Foreground color
 
-            seqs "10" "$color"
             seqs "12" "$color"
             seqs "13" "$color"
             seqs "19" "$color"
             seqs "4;256" "$color"
+        }
+
+        [ "$i" = 15 ] && {
+            # 10:  Foreground color
+            # 13:  Mouse foreground color
+            # 259: Foreground color
+
+            seqs "10" "$color"
+            seqs "13" "$color"
             seqs "4;259" "$color"
         }
 
+        [ "$xres" ] && xres="${xres}\n"
+        xres=$(printf "${xres}#define papcolor%s %s" "$i" "$color")
+
         : $((i+=1))
     done < "$1"
+
+    xcontent=$(cat ~/.config/X11/xresources | sed "/#define papcolor/D")
+    printf "%s\n%s" "$xres" "$xcontent" > ~/.config/X11/xresources
+    xrdb ~/.config/X11/xresources
 
     set +f
     set -f -- /dev/pts/[0-9]*
