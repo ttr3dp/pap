@@ -104,6 +104,7 @@ pap - pick a palette.
 
 u, use       Use selected palette
 l, list      List available palettes
+e, edit      Edit selected palette in \$EDITOR
 r, reload    Reload active palette
 "
 exit
@@ -127,6 +128,18 @@ args() {
 
             blocks "$palette"
         ;;
+        e|edit)
+            [ "$2" ] || die "No palette selected."
+
+            palette=$2
+
+            [ -f "$dir/$palette" ] || {
+                die "Palette $palette not found."
+            }
+
+            "$EDITOR" "$dir/$palette"
+        ;;
+
         l|list) palettes "$dir" ;;
         r|reload) (cat "$cache_dir/sequences" 2>/dev/null &); exit ;;
         *) usage ;;
